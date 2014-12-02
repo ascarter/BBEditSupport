@@ -20,7 +20,7 @@ on loadPackage(theDocument)
 	end try
 end loadPackage
 
-on makeTags(doc)
+on updateTags(doc)
 	run script (((supportRoot as string) & "Scripts:Ctags:Update.scpt") as alias)
 end makeTags
 
@@ -29,8 +29,8 @@ on documentDidSave(doc)
 		set supportRoot to (container of (container of (path to me))) as alias
 	end tell
 	
-	makeTags(doc)
-	
+	updateTags(doc)
+
 	set pkg to loadPackage(doc)
 	if pkg is not missing value then
 		try
