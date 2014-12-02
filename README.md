@@ -6,3 +6,6 @@ Collection of support scripts for BBEdit
 
     make install
 
+## Uninstall
+
+    make uninstall

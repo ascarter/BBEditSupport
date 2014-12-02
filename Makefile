@@ -11,6 +11,7 @@ endif
 SOURCES := \
 	Scripts/ctags.applescript \
 	Attachment\ Scripts/Document.applescript
+
 OBJECTS := $(SOURCES:.applescript=.scpt)
 
 %.scpt : %.applescript
@@ -25,10 +26,14 @@ all: $(OBJECTS)
 clean:
 	-rm -f $(OBJECTS)
 
-install:
+install: all
 	cp Scripts/ctags.scpt $(PREFIX)/Scripts/ctags.scpt
 	cp Attachment\ Scripts/Document.scpt $(PREFIX)/Attachment\ Scripts/Document.scpt
 	cp Language\ Modules/*.plist $(PREFIX)/Language\ Modules/.
+	cp Color\ Schemes/*.bbColorScheme $(PREFIX)/Color\ Schemes/.
+	cp Preview\ CSS/*.css $(PREFIX)/Preview\ CSS/.
+	cp Stationery/* $(PREFIX)/Stationery/.
+	cp Text\ Filters/* $(PREFIX)/Text\ Filters/.
 
 uninstall:
 	-rm -f $(PREFIX)/Scripts/ctags.scpt
