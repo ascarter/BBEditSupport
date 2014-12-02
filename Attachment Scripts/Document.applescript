@@ -1,30 +1,31 @@
 on loadPackage(theDocument)
 	tell application "BBEdit"
 		if class of theDocument is not text document then
-			return null
+			return missing value
 		end if
 		set sourceLanguage to the source language of theDocument
 	end tell
-	-- display alert sourceLanguage
+
 	try
 		tell application "Finder" to set bbSupportRoot to (container of (container of (path to me))) as alias
-		set packageContents to ((bbSupportRoot as string) & "Packages:" & sourceLanguage & ".bbpackage:Contents") as alias
-		set packageLib to ((packageContents as string) & "Resources:lib.scpt") as alias
-		set thePackage to load script (packageLib)
-		set packageRoot of thePackage to packageContents
-		return thePackage
-	on error
-		return null
+		set pkgRoot to ((bbSupportRoot as string) & "Packages:" & sourceLanguage & ".bbpackage") as alias
+		set pkgLib to ((pkgRoot as string) & "Contents:Resources:package.scpt") as alias
+		set pkg to load script (pkgLib)
+		set packageRoot of pkg to pkgRoot
+		return pkg
+	on error msg
+		log "Error loadPackage: " & msg
+		return missing value
 	end try
 end loadPackage
 
-on documentDidSave(theDocument)
-	set thePackage to loadPackage(theDocument)
-	if thePackage is not null then
+on documentDidSave(doc)
+	set pkg to loadPackage(doc)
+	if pkg is not missing value then
 		try
-			tell thePackage to handleDocumentDidSave(theDocument)
+			tell pkg to handleDocumentDidSave(doc)
 		on error msg number err
-			display alert msg & " (" & err & ")"
+			log "Error documentDidSave: " & msg & " (" & err & ")"
 		end try
 	end if
 end documentDidSave
