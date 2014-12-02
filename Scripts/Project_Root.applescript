@@ -1,4 +1,4 @@
-on makeTags()
+on projectRoot()
 	set theFile to missing value
 	
 	tell application "BBEdit"
@@ -35,15 +35,9 @@ on makeTags()
 			end if
 		end if
 	end tell
-	
-	if theFile is equal to missing value then
-		-- No base file found for reference
-		-- Signal error by beep and end
-		beep
-	else
-		-- Run the maketags script
-		set thePath to POSIX path of theFile
-		do shell script ("cd " & thePath & "; /usr/local/bin/bbedit --maketags")
-	end if
-end makeTags
+	return theFile
+end projectRoot
 
+on run
+	return projectRoot()
+end run

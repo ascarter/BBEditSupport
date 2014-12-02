@@ -9,7 +9,9 @@ ifeq ($(wildcard $(PREFIX)/*),)
 endif
 
 SOURCES := \
-	Scripts/ctags.applescript \
+	Scripts/Project_Root.applescript \
+	Scripts/Ctags/Create.applescript \
+	Scripts/Ctags/Update.applescript \
 	Attachment\ Scripts/Document.applescript
 
 OBJECTS := $(SOURCES:.applescript=.scpt)
@@ -27,7 +29,10 @@ clean:
 	-rm -f $(OBJECTS)
 
 install: all
-	cp Scripts/ctags.scpt $(PREFIX)/Scripts/ctags.scpt
+	cp Scripts/Project_Root.scpt $(PREFIX)/Scripts/Project\ Root.scpt
+	mkdir -p $(PREFIX)/Scripts/Ctags
+	cp Scripts/Ctags/Create.scpt $(PREFIX)/Scripts/Ctags/Create.scpt
+	cp Scripts/Ctags/Update.scpt $(PREFIX)/Scripts/Ctags/Update.scpt
 	cp Attachment\ Scripts/Document.scpt $(PREFIX)/Attachment\ Scripts/Document.scpt
 	cp Language\ Modules/*.plist $(PREFIX)/Language\ Modules/.
 	cp Color\ Schemes/*.bbColorScheme $(PREFIX)/Color\ Schemes/.
@@ -36,7 +41,9 @@ install: all
 	cp Text\ Filters/* $(PREFIX)/Text\ Filters/.
 
 uninstall:
-	-rm -f $(PREFIX)/Scripts/ctags.scpt
+	-rm -f $(PREFIX)/Scripts/Project\ Root.scpt
+	-rm -f $(PREFIX)/Scripts/Ctags/Create.scpt
+	-rm -f $(PREFIX)/Scripts/Ctags/Update.scpt
 	-rm -f $(PREFIX)/Attachment\ Scripts/Document.scpt
 	-rm -f $(PREFIX)/Language\ Modules/AppleScript.plist
 	-rm -f $(PREFIX)/Language\ Modules/protobuf.plist
