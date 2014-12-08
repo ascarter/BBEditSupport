@@ -7,7 +7,7 @@ on getSupportRoot()
 	return supportRoot
 end getSupportRoot
 
-on loadPackage(theDocument)
+on getPackageRoot(theDocument)
 	tell application "BBEdit"
 		if class of theDocument is not text document then
 			return missing value
@@ -16,43 +16,66 @@ on loadPackage(theDocument)
 	end tell
 	
 	try
-		set pkgRoot to ((getSupportRoot() as string) & "Packages:" & sourceLanguage & ".bbpackage") as alias
-		set pkgLib to ((pkgRoot as string) & "Contents:Resources:package.scpt") as alias
-		set pkg to load script (pkgLib)
-		set packageRoot of pkg to pkgRoot
-		return pkg
+		return ((getSupportRoot() as string) & "Packages:" & sourceLanguage & ".bbpackage") as alias
 	on error msg
-		log "Error loadPackage: " & msg
+		log (sourceLanguage as string) & " package not installed"
 		return missing value
 	end try
-end loadPackage
+end getPackageRoot
+
+on getAttachmentScript(theDocument, scriptName)
+	set pkgRoot to getPackageRoot(theDocument)
+	if pkgRoot is missing value then
+		return missing value
+	end if
+	try
+		return ((pkgRoot as string) & "Contents:Attachment Scripts:" & scriptName) as alias
+	on error
+		log "Script " & scriptName & " not found"
+		return missing value
+	end try
+end getAttachmentScript
 
 on updateTags(doc)
-	run script (((getSupportRoot() as string) & "Scripts:Ctags:Update.scpt") as alias)
+	try
+		run script (((getSupportRoot() as string) & "Scripts:Ctags:Update.scpt") as alias)
+	on error msg
+		log "Error running ctags: " & msg
+	end try
 end updateTags
 
+on runAttachmentScript(doc, scriptName)
+	try
+		set pkgScript to getAttachmentScript(doc, scriptName)
+		if pkgScript is missing value then
+			return
+		end if
+		tell application "BBEdit"
+			set docPath to quoted form of POSIX path of ((file of doc) as string)
+			set docLanguage to quoted form of (source language of doc as string)
+		end tell
+		set envVars to "BB_DOC_PATH=" & docPath & " BB_DOC_LANGUAGE=" & docLanguage
+		do shell script envVars & space & quoted form of POSIX path of pkgScript
+	on error msg
+		log "Error running script " & scriptName & ": " & msg
+	end try
+end runAttachmentScript
+
 on documentWillSave(doc)
-	set pkg to loadPackage(doc)
-	if pkg is not missing value then
-		try
-			tell pkg to documentWillSave(doc)
-		on error msg number err
-			log "Error documentWillSave: " & msg & " (" & err & ")"
-		end try
-	end if
+  return
+	runAttachmentScript(doc, "documentWillSave")
 end documentWillSave
 
 on documentDidSave(doc)
+  return
 	updateTags(doc)
-	
-	set pkg to loadPackage(doc)
-	if pkg is not missing value then
-		try
-			tell pkg to documentDidSave(doc)
-		on error msg number err
-			-- Can be missing handler but haven't found a way to
-			-- test for it
-			log "Error documentDidSave: " & msg & " (" & err & ")"
-		end try
-	end if
+	runAttachmentScript(doc, "documentDidSave")
 end documentDidSave
+
+(*
+on run
+	tell application "BBEdit" to set doc to active document of window 1
+	--documentWillSave(doc)
+	documentDidSave(doc)
+end run
+*)
