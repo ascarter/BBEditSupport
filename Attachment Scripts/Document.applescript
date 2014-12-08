@@ -7,34 +7,13 @@ on getSupportRoot()
 	return supportRoot
 end getSupportRoot
 
-on getPackageRoot(theDocument)
-	tell application "BBEdit"
-		if class of theDocument is not text document then
-			return missing value
-		end if
-		set sourceLanguage to the source language of theDocument
-	end tell
-	
-	try
-		return ((getSupportRoot() as string) & "Packages:" & sourceLanguage & ".bbpackage") as alias
-	on error msg
-		log (sourceLanguage as string) & " package not installed"
-		return missing value
-	end try
-end getPackageRoot
-
-on getAttachmentScript(theDocument, scriptName)
-	set pkgRoot to getPackageRoot(theDocument)
-	if pkgRoot is missing value then
-		return missing value
-	end if
-	try
-		return ((pkgRoot as string) & "Contents:Attachment Scripts:" & scriptName) as alias
-	on error
-		log "Script " & scriptName & " not found"
-		return missing value
-	end try
-end getAttachmentScript
+on parseResults(results)
+	set prevDelimiter to AppleScript's text item delimiters
+	set AppleScript's text item delimiters to {","}
+	set output to paragraphs of results as string
+	set AppleScript's text item delimiters to prevDelimiter
+	return output
+end parseResults
 
 on updateTags(doc)
 	try
@@ -45,29 +24,35 @@ on updateTags(doc)
 end updateTags
 
 on runAttachmentScript(doc, scriptName)
-	try
-		set pkgScript to getAttachmentScript(doc, scriptName)
-		if pkgScript is missing value then
+	tell application "BBEdit"
+		if class of doc is not text document then
 			return
 		end if
+		set sourceLanguage to the source language of doc
+	end tell
+	
+	try
+		set pkgScript to ((getSupportRoot() as string) & "Packages:" & sourceLanguage & ".bbpackage:Contents:Attachment Scripts:" & scriptName) as alias
 		tell application "BBEdit"
 			set docPath to quoted form of POSIX path of ((file of doc) as string)
 			set docLanguage to quoted form of (source language of doc as string)
 		end tell
+		
 		set envVars to "BB_DOC_PATH=" & docPath & " BB_DOC_LANGUAGE=" & docLanguage
-		do shell script envVars & space & quoted form of POSIX path of pkgScript
+		set results to do shell script envVars & space & quoted form of POSIX path of pkgScript
+		if length of results > 0 then
+			run script "make new results browser with data {" & parseResults(results) & "} with properties {name:\"Save\"}"
+		end if
 	on error msg
-		log "Error running script " & scriptName & ": " & msg
+		log msg
 	end try
 end runAttachmentScript
 
 on documentWillSave(doc)
-  return
 	runAttachmentScript(doc, "documentWillSave")
 end documentWillSave
 
 on documentDidSave(doc)
-  return
 	updateTags(doc)
 	runAttachmentScript(doc, "documentDidSave")
 end documentDidSave
@@ -75,7 +60,7 @@ end documentDidSave
 (*
 on run
 	tell application "BBEdit" to set doc to active document of window 1
-	--documentWillSave(doc)
+	documentWillSave(doc)
 	documentDidSave(doc)
 end run
 *)
