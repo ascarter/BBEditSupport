@@ -7,13 +7,23 @@ on getSupportRoot()
 	return supportRoot
 end getSupportRoot
 
-on parseResults(results)
-	set prevDelimiter to AppleScript's text item delimiters
-	set AppleScript's text item delimiters to {","}
-	set output to paragraphs of results as string
-	set AppleScript's text item delimiters to prevDelimiter
-	return output
-end parseResults
+on echoContents(doc)
+	tell application "BBEdit"
+		set prevDelimiter to AppleScript's text item delimiters
+		set AppleScript's text item delimiters to {ASCII character 10}
+		set output to (lines of text of doc) as string
+		set AppleScript's text item delimiters to prevDelimiter
+		return "echo " & quoted form of output
+	end tell
+end echoContents
+
+on replaceContents(doc, output)
+	tell application "BBEdit"
+		set currSel to selection of window of doc
+		set contents of doc to output
+		select insertion point before currSel
+	end tell
+end replaceContents
 
 on updateTags(doc)
 	try
@@ -37,24 +47,37 @@ on runAttachmentScript(doc, scriptName)
 			set docPath to quoted form of POSIX path of ((file of doc) as string)
 			set docLanguage to quoted form of (source language of doc as string)
 		end tell
-		
-		set envVars to "BB_DOC_PATH=" & docPath & " BB_DOC_LANGUAGE=" & docLanguage
-		set results to do shell script envVars & space & quoted form of POSIX path of pkgScript
-		if length of results > 0 then
-			run script "make new results browser with data {" & parseResults(results) & "} with properties {name:\"Save\"}"
+	on error msg
+		log "Script not found: " & msg
+		return missing value
+	end try
+	
+	set envVars to "BB_DOC_PATH=" & docPath & " BB_DOC_LANGUAGE=" & docLanguage
+	return do shell script echoContents(doc) & " | " & envVars & space & quoted form of POSIX path of pkgScript
+end runAttachmentScript
+
+on documentWillSave(doc)
+	try
+		set output to runAttachmentScript(doc, "documentWillSave")
+		if output is not missing value and length of output > 0 then
+			replaceContents(doc, output)
 		end if
 	on error msg
 		log msg
 	end try
-end runAttachmentScript
-
-on documentWillSave(doc)
-	runAttachmentScript(doc, "documentWillSave")
+	
 end documentWillSave
 
 on documentDidSave(doc)
-	updateTags(doc)
-	runAttachmentScript(doc, "documentDidSave")
+	try
+		updateTags(doc)
+		set output to runAttachmentScript(doc, "documentDidSave")
+		if output is not missing value and length of output > 0 then
+			showResults(doc, output)
+		end if
+	on error msg
+		log msg
+	end try
 end documentDidSave
 
 (*
