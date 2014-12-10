@@ -71,10 +71,7 @@ end documentWillSave
 on documentDidSave(doc)
 	try
 		updateTags(doc)
-		set output to runAttachmentScript(doc, "documentDidSave")
-		if output is not missing value and length of output > 0 then
-			showResults(doc, output)
-		end if
+		runAttachmentScript(doc, "documentDidSave")
 	on error msg
 		log msg
 	end try
