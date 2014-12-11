@@ -7,24 +7,6 @@ on getSupportRoot()
 	return supportRoot
 end getSupportRoot
 
-on echoContents(doc)
-	tell application "BBEdit"
-		set prevDelimiter to AppleScript's text item delimiters
-		set AppleScript's text item delimiters to {ASCII character 10}
-		set output to (lines of text of doc) as string
-		set AppleScript's text item delimiters to prevDelimiter
-		return "echo " & quoted form of output
-	end tell
-end echoContents
-
-on replaceContents(doc, output)
-	tell application "BBEdit"
-		set currSel to selection of window of doc
-		set contents of doc to output
-		select insertion point before currSel
-	end tell
-end replaceContents
-
 on updateTags(doc)
 	try
 		run script (((getSupportRoot() as string) & "Scripts:Ctags:Update.scpt") as alias)
@@ -53,15 +35,12 @@ on runAttachmentScript(doc, scriptName)
 	end try
 	
 	set envVars to "BB_DOC_PATH=" & docPath & " BB_DOC_LANGUAGE=" & docLanguage
-	return do shell script echoContents(doc) & " | " & envVars & space & quoted form of POSIX path of pkgScript
+	do shell script envVars & space & quoted form of POSIX path of pkgScript
 end runAttachmentScript
 
 on documentWillSave(doc)
 	try
-		set output to runAttachmentScript(doc, "documentWillSave")
-		if output is not missing value and length of output > 0 then
-			replaceContents(doc, output)
-		end if
+		runAttachmentScript(doc, "documentWillSave")
 	on error msg
 		log msg
 	end try
