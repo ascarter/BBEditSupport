@@ -32,6 +32,7 @@ install: all
 	cp Scripts/Ctags/Create.scpt $(PREFIX)/Scripts/Ctags/Create.scpt
 	cp Scripts/Ctags/Update.scpt $(PREFIX)/Scripts/Ctags/Update.scpt
 	cp Attachment\ Scripts/Document.scpt $(PREFIX)/Attachment\ Scripts/Document.scpt
+	cp -R Clippings/* $(PREFIX)/Clippings/.
 	cp Language\ Modules/*.plist $(PREFIX)/Language\ Modules/.
 	cp Color\ Schemes/*.bbColorScheme $(PREFIX)/Color\ Schemes/.
 	cp Preview\ CSS/*.css $(PREFIX)/Preview\ CSS/.
