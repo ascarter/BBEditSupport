@@ -6,21 +6,15 @@ end updateTags
 
 on runAttachmentScript(doc, scriptName)
 	tell application "BBEdit"
-		if class of doc is not text document then
-			return
-		end if
 		set sourceLanguage to the source language of doc
-	end tell
 	
-	tell application "Finder"
-		set pkgScript to ((container of (container of (path to me))) as text) & "Packages:" & sourceLanguage & ".bbpackage:Contents:Attachment Scripts:" & scriptName
-		
-		if not (exists file (pkgScript)) then
-			return
-		end if
-	end tell
+		tell application "Finder"
+			set pkgScript to ((container of (container of (path to me))) as text) & "Packages:" & sourceLanguage & ".bbpackage:Contents:Attachment Scripts:" & scriptName		
+			if not (exists file (pkgScript)) then
+				return
+			end if
+		end tell
 	
-	tell application "BBEdit"
 		set docPath to quoted form of POSIX path of ((file of doc) as string)
 		set docLanguage to quoted form of (source language of doc as string)
 		set envVars to "BB_DOC_PATH=" & docPath & " BB_DOC_LANGUAGE=" & docLanguage
@@ -29,6 +23,11 @@ on runAttachmentScript(doc, scriptName)
 end runAttachmentScript
 
 on documentDidSave(doc)
+	tell application "BBEdit"
+		if class of doc is not text document then
+			return
+		end if
+	end tell
 	updateTags(doc)
 	runAttachmentScript(doc, "documentDidSave")
 end documentDidSave
