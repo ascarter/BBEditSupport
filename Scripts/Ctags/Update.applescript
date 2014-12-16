@@ -14,7 +14,12 @@ on getProjectRoot()
 		if ((count of items of projectDocument) > 0) then
 			set firstItem to (item 1 of projectDocument) as alias
 		else
-			set firstItem to (file of document of activeWindow) as alias
+			if file of document of activeWindow is not missing value then
+				set firstItem to (file of document of activeWindow) as alias
+			else
+				-- File is unsaved
+				return missing value
+			end if
 		end if
 		
 		if (on disk of projectDocument) then
@@ -36,19 +41,17 @@ on getProjectRoot()
 end getProjectRoot
 
 on run
-	tell application "Finder"
-		set supportRoot to (container of (container of (container of (path to me)))) as alias
-	end tell
-	
 	set projectRoot to getProjectRoot()
-	if projectRoot is not equal to missing value then
-		-- Check for existing tag file
-		-- if it exists, rebuild it
-		-- This allows a project to opt-in to tags by creating the tags file once
-		tell application "Finder"
-			if exists ((projectRoot as string) & "tags") then
-				run script (((supportRoot as string) & "Scripts:Ctags:Create.scpt") as alias)
-			end if
-		end tell
+	if projectRoot is missing value then
+		return
 	end if
+	
+	-- Check for existing tag file
+	-- if it exists, rebuild it
+	-- This allows a project to opt-in to tags by creating the tags file once
+	tell application "Finder"
+		if exists ((projectRoot as string) & "tags") then
+			run script ((((container of (path to me)) as string) & "Scripts:Ctags:Create.scpt") as alias)
+		end if
+	end tell
 end run

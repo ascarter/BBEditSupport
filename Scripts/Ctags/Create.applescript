@@ -14,7 +14,12 @@ on getProjectRoot()
 		if ((count of items of projectDocument) > 0) then
 			set firstItem to (item 1 of projectDocument) as alias
 		else
-			set firstItem to (file of document of activeWindow) as alias
+			if file of document of activeWindow is not missing value then
+				set firstItem to (file of document of activeWindow) as alias
+			else
+				-- File is unsaved
+				return missing value
+			end if
 		end if
 		
 		if (on disk of projectDocument) then
@@ -34,6 +39,7 @@ on getProjectRoot()
 		return firstItem
 	end tell
 end getProjectRoot
+
 
 on run
 	tell application "Finder"
