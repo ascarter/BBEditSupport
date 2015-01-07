@@ -51,7 +51,7 @@ on run
 	-- This allows a project to opt-in to tags by creating the tags file once
 	tell application "Finder"
 		if exists ((projectRoot as string) & "tags") then
-			run script ((((container of (path to me)) as string) & "Scripts:Ctags:Create.scpt") as alias)
+			run script ((((container of (path to me)) as string) & "Create.scpt") as alias)
 		end if
 	end tell
 end run
