@@ -9,9 +9,7 @@ ifeq ($(wildcard $(PREFIX)/*),)
 endif
 
 SOURCES := \
-	Scripts/Ctags/Create.applescript \
-	Scripts/Ctags/Update.applescript \
-	Attachment\ Scripts/Document.applescript
+	Scripts/ctags.applescript
 
 OBJECTS := $(SOURCES:.applescript=.scpt)
 
@@ -28,10 +26,7 @@ clean:
 	-rm -f $(OBJECTS)
 
 install: all
-	mkdir -p $(PREFIX)/Scripts/Ctags
-	cp Scripts/Ctags/Create.scpt $(PREFIX)/Scripts/Ctags/Create.scpt
-	cp Scripts/Ctags/Update.scpt $(PREFIX)/Scripts/Ctags/Update.scpt
-	cp Attachment\ Scripts/Document.scpt $(PREFIX)/Attachment\ Scripts/Document.scpt
+	cp Scripts/*.scpt $(PREFIX)/Scripts/.
 	cp -R Clippings/* $(PREFIX)/Clippings/.
 	cp Language\ Modules/*.plist $(PREFIX)/Language\ Modules/.
 	cp Color\ Schemes/*.bbColorScheme $(PREFIX)/Color\ Schemes/.
@@ -40,9 +35,7 @@ install: all
 	cp Text\ Filters/* $(PREFIX)/Text\ Filters/.
 
 uninstall:
-	-rm -f $(PREFIX)/Scripts/Ctags/Create.scpt
-	-rm -f $(PREFIX)/Scripts/Ctags/Update.scpt
-	-rm -f $(PREFIX)/Attachment\ Scripts/Document.scpt
+	-rm -f $(PREFIX)/Scripts/ctags.scpt
 	-rm -f $(PREFIX)/Language\ Modules/AppleScript.plist
 	-rm -f $(PREFIX)/Language\ Modules/protobuf.plist
 	-rm -f $(PREFIX)/Language\ Modules/Rust.plist

@@ -1,12 +1,11 @@
--- Create ctags file for currently active project
+-- Create ctags file for active project
 
--- Determine the project root directory
-on getProjectRoot()
+on run
 	tell application "BBEdit"
 		set activeWindow to front window
 		
 		if (class of activeWindow is not project window) then
-			return missing value
+			return
 		end if
 		
 		set projectDocument to project document of activeWindow
@@ -18,7 +17,7 @@ on getProjectRoot()
 				set firstItem to (file of document of activeWindow) as alias
 			else
 				-- File is unsaved
-				return missing value
+				return
 			end if
 		end if
 		
@@ -30,26 +29,17 @@ on getProjectRoot()
 			
 			if (firstItemDir is equal to projectDir) then
 				-- Use project file
-				return projectDir as alias
+				set projectRoot to projectDir as alias
 			end if
 		end if
 		
 		-- Project is either insta-project or external
 		-- Use first item
-		return firstItem
+		set projectRoot to firstItem
 	end tell
-end getProjectRoot
-
-
-on run
-	tell application "Finder"
-		set supportRoot to (container of (container of (container of (path to me)))) as alias
-	end tell
-	
-	set projectRoot to getProjectRoot()
 	
 	if projectRoot is not equal to missing value then
-		-- Build ctags based on system language definitions
-		do shell script ("cd " & (POSIX path of projectRoot) & "; /usr/local/bin/bbedit --maketags")
+		do shell script ("/usr/local/bin/bbedit --maketags " & (POSIX path of projectRoot))
 	end if
 end run
+
