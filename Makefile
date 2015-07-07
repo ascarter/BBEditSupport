@@ -18,7 +18,7 @@ OBJECTS := $(SOURCES:.applescript=.scpt)
 
 .DEFAULT: all
 
-.PHONY: all clean install
+.PHONY: all clean install uninstall
 
 all: $(OBJECTS)
 
@@ -32,7 +32,7 @@ install: all
 	cp Color\ Schemes/*.bbColorScheme $(PREFIX)/Color\ Schemes/.
 	cp Preview\ CSS/*.css $(PREFIX)/Preview\ CSS/.
 	cp Stationery/* $(PREFIX)/Stationery/.
-	cp Text\ Filters/* $(PREFIX)/Text\ Filters/.
+	cp -R Text\ Filters/* $(PREFIX)/Text\ Filters/.
 
 uninstall:
 	-rm -f $(PREFIX)/Scripts/ctags.scpt
