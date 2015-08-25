@@ -6,7 +6,7 @@ on run
         -- Calculate the bounds for target window
         -- bounds are left, top, right, bottom
         set b to bounds of text window 1
-        set x1 to (item 3 of b) + 2
+        set x1 to (item 3 of b) + 4
         set y1 to (item 2 of b)
         set x2 to x1 + ((item 3 of b) - (item 1 of b))
         set y2 to (item 4 of b)
