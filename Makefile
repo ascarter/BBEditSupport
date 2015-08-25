@@ -9,7 +9,9 @@ ifeq ($(wildcard $(PREFIX)/*),)
 endif
 
 SOURCES := \
-	Scripts/ctags.applescript
+	Scripts/ctags.applescript \
+	Scripts/FitToScreen.applescript \
+	Scripts/SplitVertical.applescript
 
 OBJECTS := $(SOURCES:.applescript=.scpt)
 
@@ -36,6 +38,8 @@ install: all
 
 uninstall:
 	-rm -f $(PREFIX)/Scripts/ctags.scpt
+	-rm -f $(PREFIX)/Scripts/FitToScreen.scpt
+	-rm -f $(PREFIX)/Scripts/SplitVertical.scpt
 	-rm -f $(PREFIX)/Language\ Modules/AppleScript.plist
 	-rm -f $(PREFIX)/Language\ Modules/protobuf.plist
 	-rm -f $(PREFIX)/Language\ Modules/Rust.plist
